@@ -1,23 +1,29 @@
-import pygame
-from pygame.locals import *
+from PIL import Image
 
-pygame.init()
-screen = pygame.display.set_mode((200, 200))
+FIXED_WIDTH = 1024
+def asciify(image, output):
+	# specify the name of the image.
+	image = Image.open(image)
+	image = image.convert('RGB')
+	width, height = image.size
+	width, height = FIXED_WIDTH, FIXED_WIDTH * height / width
+	image = image.resize((width, height))
 
-# specify the name of the image.
-image = pygame.image.load("image.jpg")
+	# list of chars to be used. (in order).
+	chars = list("@%#*+=-:. ")
 
-# list of chars to be used. (in order).
-chars = list("@%#*+=-:. ")		
+	output = open(output, 'w')
 
-output = open("output.txt", 'w')
+	for y in range(0, height - 10, 10):
+		for x in range(0, width - 5, 5):
+			colorSum = 0
+			for px in range(5):
+				for py in range(10):
+					colorSum += max(image.getpixel((x + px, y + py)))
 
-for y in range(0, image.get_height() - 10, 10):
-	for x in range(0, image.get_width() - 5, 5):
-		colorSum = 0
-		for px in range(5):
-			for py in range(10):
-				colorSum += max(image.get_at((x + px, y + py))[:3])
-		output.write(chars[colorSum / 50 * len(chars) / 256])
-	output.write("\n")
-output.close()
+			output.write(chars[colorSum / 50 * len(chars) / 256])
+		output.write("\n")
+	output.close()
+
+print "working..."
+asciify("image.jpg", "output.txt")
